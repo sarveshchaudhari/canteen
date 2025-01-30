@@ -1,13 +1,11 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const tableRoutes = require("./routes/tableRoutes");
-require("dotenv").config();
+const dotenv = require("dotenv");
+const path = require("path");
+
+dotenv.config();
 const app = express();
-const port = 3000;
 
-app.use(express.json());
-
-// MongoDB connection
 mongoose
   .connect(process.env.MONGOURI, {
     useNewUrlParser: true,
@@ -16,9 +14,15 @@ mongoose
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.log(err));
 
-// Routes
-app.use("/tables", tableRoutes);
+app.set("view engine", "ejs");
+app.use(express.static(path.join(__dirname, "Public")));
+app.use(express.json());
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+const orderRoutes = require("./Routes/orderRoutes");
+app.use("/orders", orderRoutes);
+
+app.get("/", (req, res) => {
+  res.render("index");
 });
+
+app.listen(5000, () => console.log("Server running on port 5000"));
